@@ -1,4 +1,4 @@
-<title>Jargon Quest</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><meta name="theme-color" content="#0f1a23"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Jargon Quest"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head><body><title>Jargon Quest</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
@@ -69,6 +69,17 @@ button.chip{cursor:pointer;color:var(--ink)}
 .nbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0;flex:1 1 140px}input[type=range]{flex:1 1 120px;min-width:100px;accent-color:var(--accent)}label{display:inline-flex;gap:6px;align-items:center}
 select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}#voicesel{flex:1 1 200px;min-width:0}
 .tile.ghost{position:fixed;z-index:60;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 8px 20px rgba(0,0,0,.3);border-color:var(--accent)}.insbar{width:4px;min-height:34px;align-self:stretch;border-radius:2px;background:var(--accent);flex:none}.tile:not(:disabled){cursor:grab}
+@media (max-width:640px){
+body{padding-block:8px calc(20px + env(safe-area-inset-bottom,0px));font-size:17px}
+.wrap{display:flex;flex-direction:column;gap:10px;min-height:calc(100dvh - 28px)}
+.hud{padding:10px 12px;gap:8px}
+.card{padding:16px;border-radius:14px}
+.wrap>.card:has(.opts){flex:1;display:flex;flex-direction:column;gap:14px;font-size:19px}
+.wrap>.card:has(.opts) .opts{flex:1;grid-auto-rows:minmax(64px,1fr);gap:10px}
+.wrap>.card:has(.opts) .opt{display:flex;flex-direction:column;justify-content:center;font-size:19px;padding:14px 16px;border-radius:14px}
+.wrap>.card:has(.opts) .btn{padding:15px 18px;font-size:18px}
+.btn{padding:13px 18px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .pop{animation:pop .3s}@keyframes pop{from{transform:scale(.97);opacity:.5}to{transform:none;opacity:1}}
 
@@ -927,3 +938,4 @@ function caseQuiz(c){curTitle="Client Case Quiz";var i=0,right=0,skipped=0;
  q()}
 home();
 </script>
+<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')==0){window.addEventListener('load',function(){try{navigator.serviceWorker.register('sw.js')}catch(e){}})}</script></body></html>

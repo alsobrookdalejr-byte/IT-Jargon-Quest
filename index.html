@@ -299,7 +299,7 @@ var T=[
 ["Compliance", "NIST 800-171", "National Institute of Standards and Technology 800-171", "The set of security controls for protecting sensitive unclassified government information. It is the control set behind CMMC Level 2.", "A contractor cannot show it meets the required controls.", "How many of the 110 controls have you documented, and who maintains the evidence?"]
 ];
 var PKEY="jq.profiles.v1",PROF=null,KEY="jargonquest.v1",S,cat=null,app=document.getElementById("app");
-function defSet(){return{snd:true,sfx:80,nar:true,nvol:100,voice:"",rate:1,pitch:1}}
+function defSet(){return{hap:true,snd:true,sfx:80,nar:true,nvol:100,voice:"",rate:1,pitch:1}}
 (function(){try{var r=localStorage.getItem(PKEY);if(r)PROF=JSON.parse(r)}catch(e){}
  if(!PROF||!PROF.list||!PROF.list.length){var d=defSet();try{d.snd=localStorage.getItem("jq.snd")!=="off";d.nar=localStorage.getItem("jq.nar")!=="off";d.voice=localStorage.getItem("jq.voice")||"";d.rate=parseFloat(localStorage.getItem("jq.rate"))||1}catch(e){}PROF={cur:"p1",list:[{id:"p1",name:"Advisor",set:d}]}}})();
 function curProf(){return PROF.list.filter(function(p){return p.id===PROF.cur})[0]||PROF.list[0]}
@@ -346,7 +346,12 @@ function actx(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(
  if(AC.state==="suspended")AC.resume();return AC}
 function bell(f,t0,d,g,echo){var n=AC.currentTime+t0;[[1,1],[2,.3],[3,.12]].forEach(function(p){var o=AC.createOscillator(),v=AC.createGain();o.type="sine";o.frequency.value=f*p[0];v.gain.setValueAtTime(0.0001,n);v.gain.exponentialRampToValueAtTime((g||.2)*p[1],n+.008);v.gain.exponentialRampToValueAtTime(0.0001,n+d/p[0]);o.connect(v);v.connect(MG);if(echo)v.connect(DL);o.start(n);o.stop(n+d+.05)})}
 function thud(f1,f2,t0,d,g){var n=AC.currentTime+t0,o=AC.createOscillator(),v=AC.createGain(),lp=AC.createBiquadFilter();lp.type="lowpass";lp.frequency.value=700;o.type="triangle";o.frequency.setValueAtTime(f1,n);o.frequency.exponentialRampToValueAtTime(f2,n+d);v.gain.setValueAtTime(0.0001,n);v.gain.exponentialRampToValueAtTime(g||.25,n+.015);v.gain.exponentialRampToValueAtTime(0.0001,n+d);o.connect(lp);lp.connect(v);v.connect(MG);o.start(n);o.stop(n+d+.05)}
-function sfx(k,n){if(!sndOn)return;keepAudio();try{var A=actx();if(!A)return;var up=Math.pow(2,Math.min(n||0,7)/12);
+var hapOn=true,HL=null,HAPS={tap:[7],ok:[16],no:[28,70,28],done:[22,80,22,80,45],streak:[12,70,12]};
+function iosEl(){if(!HL){HL=document.createElement("label");HL.setAttribute("aria-hidden","true");HL.style.cssText="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none";var i=document.createElement("input");i.type="checkbox";i.setAttribute("switch","");HL.appendChild(i);document.body.appendChild(HL)}return HL}
+function buzz(k){if(!hapOn)return;var pat=HAPS[k];if(!pat)return;
+ try{if(navigator.vibrate){navigator.vibrate(pat);return}}catch(e){}
+ try{var t=0;for(var i=0;i<pat.length;i+=2){(function(d){if(d===0)iosEl().click();else setTimeout(function(){try{iosEl().click()}catch(e){}},d)})(t);t+=Math.max(90,pat[i]+(pat[i+1]||0))}}catch(e){}}
+function sfx(k,n){buzz(k);if(!sndOn)return;keepAudio();try{var A=actx();if(!A)return;var up=Math.pow(2,Math.min(n||0,7)/12);
  if(k==="ok"){bell(880*up,0,.5,.22);bell(1319*up,.09,.7,.22,true)}
  else if(k==="no"){thud(300,170,0,.28,.28);thud(230,120,.16,.34,.24)}
  else if(k==="streak"){[1047,1319,1568,2093].forEach(function(f,i){bell(f,i*.065,.6,.18,true)})}
@@ -373,8 +378,8 @@ function enVoices(){try{return speechSynthesis.getVoices().filter(function(v){re
 function pickVoice(){var vs=enVoices();if(!vs.length)return null;if(voicePick){var m=vs.filter(function(v){return v.voiceURI===voicePick||v.name===voicePick})[0];if(m)return m}return vs.slice().sort(function(a,b){return vscore(b)-vscore(a)})[0]}
 function persistSet(){curProf().set=Object.assign({},PS);saveProf()}
 function applySfxVol(){if(MG)MG.gain.value=.9*sfxVol/100}
-function setSet(k,v){PS[k]=v;if(k==="snd")sndOn=v;else if(k==="sfx"){sfxVol=v;applySfxVol()}else if(k==="nar"){narrOn=v;if(!v)stopSay()}else if(k==="nvol")narrVol=v;else if(k==="voice")voicePick=v;else if(k==="rate")rateMul=v;else if(k==="pitch")pitchMul=v;persistSet()}
-function applyProfile(){PS=Object.assign(defSet(),curProf().set);sndOn=PS.snd;sfxVol=PS.sfx;narrOn=PS.nar;narrVol=PS.nvol;pitchMul=PS.pitch;voicePick=PS.voice;rateMul=PS.rate;applySfxVol()}
+function setSet(k,v){PS[k]=v;if(k==="snd")sndOn=v;else if(k==="sfx"){sfxVol=v;applySfxVol()}else if(k==="hap")hapOn=v;else if(k==="nar"){narrOn=v;if(!v)stopSay()}else if(k==="nvol")narrVol=v;else if(k==="voice")voicePick=v;else if(k==="rate")rateMul=v;else if(k==="pitch")pitchMul=v;persistSet()}
+function applyProfile(){PS=Object.assign(defSet(),curProf().set);hapOn=PS.hap!==false;sndOn=PS.snd;sfxVol=PS.sfx;narrOn=PS.nar;narrVol=PS.nvol;pitchMul=PS.pitch;voicePick=PS.voice;rateMul=PS.rate;applySfxVol()}
 /* Narrator player: plays one sentence at a time so it can pause, rewind and fast-forward by sentence */
 var NAR={segs:[],i:0,tok:0,paused:false,mood:""};
 function updNar(){var pp=document.getElementById("nb-pp"),pos=document.getElementById("nb-pos"),n=NAR.segs.length,done=!n||NAR.i>=n;
@@ -409,6 +414,7 @@ function settings(){curTitle="Settings and Profile";stopSay();var P=curProf(),vs
   (PROF.list.length>1?'<div class="row"><button class="btn ghost" id="pdel">Delete this profile</button></div>':'')+
   '<p class="muted">Each profile keeps its own XP, badges and settings.</p></div>';
  h+='<div class="card"><h3>Daily goal</h3><div class="row"><label for="goalsel" class="muted">XP per day</label><select id="goalsel">'+[30,50,100].map(function(v){return '<option value="'+v+'"'+(S.day.goal===v?' selected':'')+'>'+v+' XP ('+(v===30?'light':v===50?'steady':'serious')+')</option>'}).join("")+'</select></div><p class="muted">Earn any XP to keep your day streak alive. Reach the goal for a bonus celebration.</p></div>';
+ h+='<div class="card"><h3>Vibration</h3><div class="row"><label><input type="checkbox" id="hapon"'+(hapOn?' checked':'')+'> Vibrate on taps, answers and badges</label></div><p class="muted">Works on Android and on iPhones running iOS 17.4 or newer. It is independent of sound, so it works with your ringer off.</p></div>';
  h+='<div class="card"><h3>Sound effects</h3><div class="row"><label><input type="checkbox" id="sndon"'+(sndOn?' checked':'')+'> Sound effects on</label></div><div class="row"><label for="sfxrange" class="muted">Volume</label><input id="sfxrange" type="range" min="0" max="100" value="'+sfxVol+'"><span id="sfxval" class="chip">'+sfxVol+'</span><button class="btn ghost" id="sfxtest">Test</button></div></div>';
  h+='<div class="card"><h3>Narrator</h3>';
  if(!narrOK)h+='<p class="muted">Your browser does not support spoken narration.</p>';
@@ -429,6 +435,7 @@ function settings(){curTitle="Settings and Profile";stopSay();var P=curProf(),vs
  if(g("pdel"))g("pdel").onclick=function(){if(!this.dataset.s){this.dataset.s=1;this.textContent="Tap again to delete "+P.name+" and its progress";return}
   try{localStorage.removeItem(stateKey(P.id))}catch(e){}PROF.list=PROF.list.filter(function(p){return p.id!==P.id});PROF.cur=PROF.list[0].id;saveProf();loadState();applyProfile();settings()};
  g("sndon").onchange=function(){setSet("snd",this.checked);if(this.checked)sfx("ok")};
+ g("hapon").onchange=function(){setSet("hap",this.checked);if(this.checked)buzz("ok")};
  g("sfxrange").oninput=function(){var v=+this.value;g("sfxval").textContent=v;setSet("sfx",v)};
  g("sfxrange").onchange=function(){sfx("ok")};
  g("sfxtest").onclick=function(){sfx("ok");setTimeout(function(){sfx("streak")},500);setTimeout(function(){sfx("no")},1500)};
